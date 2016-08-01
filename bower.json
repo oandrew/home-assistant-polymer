@@ -21,5 +21,8 @@
     "fecha": "^2.2.0",
     "promise-polyfill": "^6.0.1"
   },
-  "_comment": "specify iron-flex-layout for higher version than iron elements"
+  "_comment": "specify iron-flex-layout for higher version than iron elements",
+  "resolutions": {
+    "promise-polyfill": "^6.0.1"
+  }
 }
