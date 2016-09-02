@@ -6,7 +6,7 @@
 
 <link rel="import" href="../components/entity/state-info.html">
 
-<dom-module id="state-card-rollershutter">
+<dom-module id="state-card-cover">
   <template>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <style>
@@ -24,11 +24,11 @@
     <div class='horizontal justified layout'>
       <state-info state-obj="[[stateObj]]" in-dialog='[[inDialog]]'></state-info>
       <div class='state'>
-        <paper-icon-button icon="mdi:arrow-up" on-tap='onMoveUpTap'
-          disabled='[[computeIsFullyClosed(stateObj)]]'></paper-icon-button>
-        <paper-icon-button icon="mdi:stop" on-tap='onStopTap'></paper-icon-button>
-        <paper-icon-button icon="mdi:arrow-down" on-tap='onMoveDownTap'
+        <paper-icon-button icon="mdi:arrow-up" on-tap='onOpenTap'
           disabled='[[computeIsFullyOpen(stateObj)]]'></paper-icon-button>
+        <paper-icon-button icon="mdi:stop" on-tap='onStopTap'></paper-icon-button>
+        <paper-icon-button icon="mdi:arrow-down" on-tap='onCloseTap'
+          disabled='[[computeIsFullyClosed(stateObj)]]'></paper-icon-button>
       </div>
     </div>
   </template>
@@ -36,7 +36,7 @@
 
 <script>
 Polymer({
-  is: 'state-card-rollershutter',
+  is: 'state-card-cover',
 
   properties: {
     hass: {
@@ -61,18 +61,18 @@ Polymer({
     return stateObj.attributes.current_position === 0;
   },
 
-  onMoveUpTap: function () {
-    this.hass.serviceActions.callService('rollershutter', 'move_up',
+  onOpenTap: function () {
+    this.hass.serviceActions.callService('cover', 'open_cover',
                                          { entity_id: this.stateObj.entityId });
   },
 
-  onMoveDownTap: function () {
-    this.hass.serviceActions.callService('rollershutter', 'move_down',
+  onCloseTap: function () {
+    this.hass.serviceActions.callService('cover', 'close_cover',
                                          { entity_id: this.stateObj.entityId });
   },
 
   onStopTap: function () {
-    this.hass.serviceActions.callService('rollershutter', 'stop',
+    this.hass.serviceActions.callService('cover', 'stop_cover',
                                          { entity_id: this.stateObj.entityId });
   },
 });

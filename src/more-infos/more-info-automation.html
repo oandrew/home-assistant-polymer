@@ -4,11 +4,10 @@
 
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../components/entity/state-info.html">
+<link rel="import" href="../components/ha-relative-time.html">
 
-<dom-module id="state-card-scene">
+<dom-module id="more-info-automation">
   <template>
-    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <style>
       paper-button {
         color: var(--default-primary-color);
@@ -18,25 +17,23 @@
       }
     </style>
 
-    <div class='horizontal justified layout'>
-      <state-info state-obj="[[stateObj]]" in-dialog='[[inDialog]]'></state-info>
-      <paper-button on-tap='activateScene'>ACTIVATE</paper-button>
-    </div>
+    <p>
+      Last triggered:
+      <ha-relative-time datetime="[[stateObj.attributes.last_triggered]]"></ha-relative-time>
+    </p>
+
+    <paper-button on-tap='handleTriggerTapped'>TRIGGER</paper-button>
+
   </template>
 </dom-module>
 
 <script>
 Polymer({
-  is: 'state-card-scene',
+  is: 'more-info-automation',
 
   properties: {
     hass: {
       type: Object,
-    },
-
-    inDialog: {
-      type: Boolean,
-      value: false,
     },
 
     stateObj: {
@@ -44,9 +41,10 @@ Polymer({
     },
   },
 
-  activateScene: function (ev) {
-    ev.stopPropagation();
-    this.hass.serviceActions.callTurnOn(this.stateObj.entityId);
+  handleTriggerTapped: function () {
+    this.hass.serviceActions.callService('automation', 'trigger', {
+      entity_id: this.stateObj.entityId,
+    });
   },
 });
 </script>

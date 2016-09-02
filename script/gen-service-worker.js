@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 /*
 Generate a caching service worker for HA
 
@@ -13,9 +15,10 @@ var path = require('path');
 var swPrecache = require('sw-precache');
 var uglifyJS = require('uglify-js');
 
+const DEV = !!JSON.parse(process.env.BUILD_DEV || 'true');
+
 var rootDir = '..';
 var panelDir = rootDir + '/panels';
-// var panels = fs.readdirSync(panelDir);
 
 var dynamicUrlToDependencies = {
   '/': [rootDir + '/frontend.html', rootDir + '/core.js'],
@@ -55,7 +58,7 @@ panelsFingerprinted.forEach(panel => {
 
 var options = {
   navigateFallback: '/',
-  navigateFallbackWhitelist: [/^((?!(static|api|local|service_worker.js)).)*$/],
+  navigateFallbackWhitelist: [/^((?!(static|api|local|service_worker.js|manifest.json)).)*$/],
   dynamicUrlToDependencies: dynamicUrlToDependencies,
   staticFileGlobs: [
     rootDir + '/icons/favicon.ico',
@@ -72,14 +75,20 @@ var options = {
   verbose: true,
 };
 
-var genPromise = swPrecache.generate(options);
+var devBase = 'console.warn("Service worker caching disabled in development")';
 
-if (true) {
+var swHass = fs.readFileSync(path.resolve(__dirname, 'service-worker.js.tmpl'), 'UTF-8')
+
+var genPromise = DEV ? Promise.resolve(devBase) : swPrecache.generate(options);
+
+genPromise = genPromise.then(swString => swString + '\n' + swHass);
+
+if (!DEV) {
   genPromise = genPromise.then(
     swString => uglifyJS.minify(swString, { fromString: true }).code);
 }
 
 genPromise.then(
   swString =>
-    fs.writeFileSync(path.join('build', 'service_worker.js'), swString)
+    fs.writeFileSync(path.resolve(__dirname, '../build/service_worker.js'), swString)
 ).catch(err => console.error(err));
